@@ -1,7 +1,12 @@
-import type { AbiEvent, Address, Log, PublicClient } from "viem";
+import type { AbiEvent, Address, Log } from "viem";
+
+export interface LogClient {
+  getBlockNumber: () => Promise<bigint>;
+  getLogs: (params: any) => Promise<any[]>;
+}
 
 export interface ChunkedLogOptions<TAbiEvent extends AbiEvent = AbiEvent> {
-  client: Pick<PublicClient, "getBlockNumber" | "getLogs">;
+  client: LogClient;
   address: Address;
   event: TAbiEvent;
   args?: Record<string, unknown>;
@@ -59,7 +64,7 @@ export async function getLogsChunked<TAbiEvent extends AbiEvent>(
       const logs = (await client.getLogs({
         address,
         event,
-        args: args as any,
+        args,
         fromBlock: cursor,
         toBlock: nextTo,
       })) as Log[];
@@ -94,7 +99,7 @@ export async function getLogsChunked<TAbiEvent extends AbiEvent>(
  * Fetches logs from exactly one block. Single-block getLogs is always cheap and fast on any RPC.
  */
 export async function getLogsAtBlock<TAbiEvent extends AbiEvent>(
-  client: Pick<PublicClient, "getLogs">,
+  client: Pick<LogClient, "getLogs">,
   address: Address,
   event: TAbiEvent,
   args?: Record<string, unknown>,
@@ -104,7 +109,7 @@ export async function getLogsAtBlock<TAbiEvent extends AbiEvent>(
   return (await client.getLogs({
     address,
     event,
-    args: args as any,
+    args,
     fromBlock: targetBlock,
     toBlock: targetBlock,
   })) as Log[];

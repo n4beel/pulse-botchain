@@ -125,6 +125,8 @@ describe("Pulse on live local EVM", () => {
       address,
       abi: pulseAbi,
       functionName: "checkIn",
+      chain: local,
+      account,
     });
     const receipt = await publicClient.waitForTransactionReceipt({ hash });
     expect(receipt.status).toBe("success");
@@ -155,6 +157,8 @@ describe("Pulse on live local EVM", () => {
         address,
         abi: pulseAbi,
         functionName: "checkIn",
+        chain: local,
+        account,
       });
     } catch (err: unknown) {
       threw = true;
@@ -177,6 +181,8 @@ describe("Pulse on live local EVM", () => {
       address,
       abi: pulseAbi,
       functionName: "checkIn",
+      chain: local,
+      account,
     });
     const receipt = await publicClient.waitForTransactionReceipt({ hash });
     expect(receipt.status).toBe("success");
@@ -206,6 +212,8 @@ describe("Pulse on live local EVM", () => {
       address,
       abi: pulseAbi,
       functionName: "checkIn",
+      chain: local,
+      account,
     });
     const receipt = await publicClient.waitForTransactionReceipt({ hash });
     expect(receipt.status).toBe("success");
