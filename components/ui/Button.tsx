@@ -1,55 +1,91 @@
 "use client";
 
-import { ButtonHTMLAttributes, CSSProperties, forwardRef } from "react";
+import { ButtonHTMLAttributes, forwardRef } from "react";
 
-type Variant = "primary" | "ghost" | "danger";
-type Size = "sm" | "md";
+export type ButtonVariant = "hero" | "primary" | "secondary" | "ghost";
+export type ButtonSize = "sm" | "md" | "lg";
 
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: Variant;
-  size?: Size;
+export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: ButtonVariant;
+  size?: ButtonSize;
   loading?: boolean;
 }
 
-const variantInlineStyles: Record<Variant, CSSProperties> = {
-  primary: { background: "var(--accent)", color: "var(--bg-base)" },
-  ghost: { background: "transparent", border: "1px solid var(--border-default)", color: "var(--text-secondary)" },
-  danger: { background: "transparent", border: "1px solid var(--danger)", color: "var(--danger)" },
-};
-
-const sizeStyles: Record<Size, string> = {
-  sm: "px-3 py-1.5 text-[11px]",
-  md: "px-5 py-2.5 text-[13px]",
-};
-
-const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ variant = "primary", size = "md", loading, disabled, children, className = "", style, ...props }, ref) => {
-    return (
-      <button
-        ref={ref}
-        disabled={disabled || loading}
-        className={[
-          "inline-flex items-center justify-center gap-2",
-          "font-medium tracking-[0.02em] uppercase transition-opacity",
-          "cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed",
-          sizeStyles[size],
-          className,
-        ].join(" ")}
-        style={{ borderRadius: "2px", ...variantInlineStyles[variant], ...style }}
-        {...props}
-      >
-        {loading ? (
-          <>
-            <span className="w-3 h-3 border border-current border-t-transparent rounded-full animate-spin" />
-            {children}
-          </>
-        ) : (
-          children
-        )}
-      </button>
-    );
+/**
+ * Bento Archetype K Button.
+ * Hero action is 64px tall, bold, rounded-2xl, touch-target friendly, no hover lift.
+ */
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
+  {
+    variant = "primary",
+    size = "md",
+    loading = false,
+    disabled = false,
+    className = "",
+    children,
+    ...props
   },
-);
+  ref,
+) {
+  let variantClass = "";
+  if (variant === "hero") {
+    variantClass =
+      "h-16 w-full text-lg md:text-xl font-extrabold rounded-2xl bg-[var(--accent-ink)] text-[var(--accent)] hover:bg-[var(--accent-ink)]/90 active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed";
+  } else if (variant === "primary") {
+    variantClass =
+      "font-bold rounded-xl bg-[var(--accent)] text-[var(--accent-ink)] hover:bg-[var(--accent)]/90 active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed";
+  } else if (variant === "secondary") {
+    variantClass =
+      "font-semibold rounded-xl bg-[var(--bg-surface)] text-[var(--text-primary)] border border-[var(--border-subtle)] hover:border-[var(--text-muted)] disabled:opacity-50 disabled:cursor-not-allowed";
+  } else if (variant === "ghost") {
+    variantClass =
+      "font-medium rounded-xl text-[var(--text-primary)] hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed";
+  }
 
-Button.displayName = "Button";
+  let sizeClass = "";
+  if (variant !== "hero") {
+    if (size === "sm") sizeClass = "h-9 px-3 text-xs";
+    else if (size === "md") sizeClass = "h-11 px-5 text-sm";
+    else if (size === "lg") sizeClass = "h-14 px-8 text-base";
+  }
+
+  return (
+    <button
+      ref={ref}
+      disabled={disabled || loading}
+      className={`inline-flex items-center justify-center transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] select-none ${variantClass} ${sizeClass} ${className}`}
+      {...props}
+    >
+      {loading ? (
+        <span className="inline-flex items-center gap-2">
+          <svg
+            className="animate-spin h-5 w-5"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+            />
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            />
+          </svg>
+          <span>{children}</span>
+        </span>
+      ) : (
+        children
+      )}
+    </button>
+  );
+});
+
 export default Button;
