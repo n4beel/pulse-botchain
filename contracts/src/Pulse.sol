@@ -14,7 +14,7 @@ pragma solidity 0.8.23;
 /// - No funds accepted (no payable, no receive/fallback).
 contract Pulse {
   /// @notice One day in seconds (86,400)
-  uint256 public constant DAY = 1 days;
+  uint256 public constant DAY = 86400;
 
   /// @dev Packed into one 20-byte slot: 4 + 4 + 4 + 8 = 20 bytes.
   /// Saves ~22k gas on first write by keeping user streak state in a single storage slot.

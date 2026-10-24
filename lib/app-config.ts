@@ -1,10 +1,6 @@
 /**
  * The per-project identity. This and `lib/botchain/abi.ts` are the only two template files each of
  * the fifteen projects is expected to rewrite.
- *
- * It exists so the shell, the wallet metadata, the page titles and the accent colour all come from
- * one place. Fifteen apps that each hand-edit a layout drift apart; fifteen that read one config
- * stay a family.
  */
 export const app = {
   /** Product name, as shown to a user. */
@@ -19,8 +15,7 @@ export const app = {
    */
   accent: "#D7FF3F",
   /**
-   * The single transaction this app exists to make, in the user's words. Shown in the empty state
-   * and reused verbatim in the listing submission, so the app and the form cannot disagree.
+   * The single transaction this app exists to make, in the user's words.
    */
-  theTx: "Do the thing",
+  theTx: "Check in for today",
 } as const;
