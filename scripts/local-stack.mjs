@@ -4,16 +4,17 @@
  * Spawns anvil on port 8701 with chain id 968, deploys Pulse, and seeds
  * realistic states across anvil accounts:
  * - Account 0: 12-day streak, checked in today (Done)
- * - Account 1: 5-day streak, checked in yesterday (At risk, 12h left)
+ * - Account 1: 5-day streak, checked in yesterday (At risk, hours left)
  * - Account 2: Broken streak (best 9, ended days ago)
  * - Account 3: Never checked in (New user)
  * - Accounts 4-8: Varied streaks for the leaderboard
  *
+ * Usage:
  *   node scripts/local-stack.mjs
  *   npm run dev
  */
 
-import { spawn } from "node:child_process";
+import { spawn, execSync } from "node:child_process";
 import { readFileSync, writeFileSync } from "node:fs";
 import { createPublicClient, createWalletClient, defineChain, http } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
@@ -41,11 +42,34 @@ const local = defineChain({
   rpcUrls: { default: { http: [RPC] } },
 });
 
-console.log(`Starting anvil on port ${PORT}...`);
-spawn("anvil", ["--port", String(PORT), "--chain-id", String(CHAIN_ID), "--silent"], {
-  detached: true,
-  stdio: "ignore",
-}).unref();
+try {
+  execSync(`fuser -k ${PORT}/tcp 2>/dev/null || true`);
+} catch {}
+
+const DAY = 86400;
+const realNow = Math.floor(Date.now() / 1000);
+const T = Math.floor(realNow / DAY); // Today's UTC day number
+const startTimestamp = (T - 15) * DAY + 1000;
+
+console.log(`Starting anvil on port ${PORT} (timestamp: ${startTimestamp})...`);
+spawn(
+  "anvil",
+  [
+    "--port",
+    String(PORT),
+    "--chain-id",
+    String(CHAIN_ID),
+    "--accounts",
+    "10",
+    "--timestamp",
+    String(startTimestamp),
+    "--silent",
+  ],
+  {
+    detached: true,
+    stdio: "ignore",
+  }
+).unref();
 
 const pub = createPublicClient({ chain: local, transport: http() });
 const deployerAccount = privateKeyToAccount(KEYS[0]);
@@ -75,10 +99,6 @@ const deployed = await pub.waitForTransactionReceipt({ hash: deployHash });
 const contractAddress = deployed.contractAddress;
 
 console.log(`Pulse deployed at ${contractAddress} (block ${deployed.blockNumber})`);
-
-const DAY = 86400;
-// Target day T: ~Oct 2025 (day 20370)
-const T = 20370;
 
 // Set up wallet clients for accounts 0..8
 const wallets = KEYS.map((k) =>
@@ -110,9 +130,9 @@ for (let d = T - 4; d <= T - 1; d++) schedule.get(d).push(6);
 for (let d = T - 2; d <= T; d++) schedule.get(d).push(7);
 for (let d = T - 1; d <= T; d++) schedule.get(d).push(8);
 
-// Step through days and record check-ins
-for (let d = T - 15; d <= T; d++) {
-  const dayTimestamp = d * DAY + 1000;
+// Step through days T-15 to T-1 and record check-ins
+for (let d = T - 15; d < T; d++) {
+  const dayTimestamp = d * DAY + 43200; // mid-day of day d
   await pub.request({ method: "evm_setTime", params: [dayTimestamp] });
   await pub.request({ method: "evm_mine", params: [] });
 
@@ -128,10 +148,30 @@ for (let d = T - 15; d <= T; d++) {
   }
 }
 
-// Warp to midday of Day T so hours left renders nicely (~12 hours left)
-const finalMidDay = T * DAY + 43200;
-await pub.request({ method: "evm_setTime", params: [finalMidDay] });
+// Warp to realNow for Day T check-ins
+await pub.request({ method: "evm_setTime", params: [realNow] });
 await pub.request({ method: "evm_mine", params: [] });
+
+// Check in for accounts scheduled on Day T
+const todayAccounts = schedule.get(T) || [];
+for (const accIdx of todayAccounts) {
+  const w = wallets[accIdx];
+  const hash = await w.writeContract({
+    address: contractAddress,
+    abi: artifact.abi,
+    functionName: "checkIn",
+  });
+  await pub.waitForTransactionReceipt({ hash });
+}
+
+// Assert final chain timestamp is within 120s of wall clock
+const finalBlock = await pub.getBlock();
+const currentWallTime = Math.floor(Date.now() / 1000);
+const diff = Math.abs(Number(finalBlock.timestamp) - currentWallTime);
+console.log(`\nFinal chain timestamp: ${finalBlock.timestamp} (real: ${currentWallTime}, diff: ${diff}s)`);
+if (diff > 120) {
+  throw new Error(`Chain timestamp skewed by ${diff}s, expected <= 120s`);
+}
 
 // Write .env.local
 writeFileSync(
@@ -142,6 +182,8 @@ writeFileSync(
     `NEXT_PUBLIC_BOHR_RPC=${RPC}`,
     `NEXT_PUBLIC_CONTRACT_968=${contractAddress}`,
     `NEXT_PUBLIC_DEPLOY_BLOCK_968=${deployed.blockNumber > 1n ? deployed.blockNumber - 1n : 1n}`,
+    `NEXT_PUBLIC_CHAIN_ID=968`,
+    `NEXT_PUBLIC_RPC_URL=${RPC}`,
     "",
   ].join("\n"),
 );

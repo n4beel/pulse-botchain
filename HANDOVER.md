@@ -76,3 +76,34 @@ None.
 
 ## Suggestions
 None.
+
+## Feedback round 1
+
+All findings from `docs/specs/FEEDBACK-pulse.md` addressed and verified:
+
+1. **Seeded chain time aligned to wall-clock time (`scripts/local-stack.mjs`):** FIXED.
+   - Calculated current day `T = Math.floor(realNow / 86400)` and derived anvil genesis timestamp `(T - 15) * 86400 + 1000` to simulate historical check-ins across days `T - 15` through `T - 1`.
+   - Replaced static day constants with dynamic wall-clock aligned timestamps, advancing forward only so final chain timestamp matches host wall-clock time (`diff <= 120s`, asserted and printed).
+   - Added `NEXT_PUBLIC_BOTCHAIN_NETWORK=testnet` and `NEXT_PUBLIC_BOHR_RPC=http://127.0.0.1:8701` write into `.env.local`.
+   - Printed the account role table on startup.
+
+2. **Real browser walkthrough (`docs/specs/tools/mock-wallet.js`):** FIXED.
+   - Walkthrough conducted on running local stack (`http://127.0.0.1:8701`) and dev server (`http://localhost:3001`) with Google Chrome headless and `mock-wallet.js`.
+   - Verified responsive layouts across 360 px, 720 px, and 1280 px viewports.
+   - Tested route `/` as Account 0 (streak 12, Done state), Account 1 (streak 5, At Risk, checked in to Day 6), and Observer (no wallet connected).
+   - Tested public profile `/u/[address]` as Account 2 (broken streak, ended, best 9) and Account 3 (0 check-ins).
+   - Tested invalid address `/u/not-an-address` showing 404-style error state.
+   - Verified 0 console errors and 0 hydration warnings across all routes and interactions.
+
+### Browser Walkthrough Results
+
+| Route | Role | Action | Status | Console Errors | Hydration Warnings | Notes |
+|---|---|---|---|---|---|---|
+| `/` (360px, 720px, 1280px) | Visitor | Viewport responsiveness checks | PASS | 0 | 0 | Bento grid adapts correctly; no horizontal overflow |
+| `/` | Acc 0 | View active 12-day streak in Done state | PASS | 0 | 0 | Displays current 12-day streak numeral, disabled Done for today button, live UTC countdown |
+| `/` | Acc 1 | Check in for Day 6 on-chain | PASS | 0 | 0 | Checked in on chain; streak numeral ticked up to 6, button transitioned to Done for today |
+| `/u/0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC` | Acc 2 | View public profile of wallet with ended streak | PASS | 0 | 0 | Displays Streak Ended badge, current streak 0, preserves best historical streak (9) |
+| `/u/0x90F79bf6EB2c4f870365E785982E1f101E93b906` | Acc 3 | View public profile of wallet with 0 check-ins | PASS | 0 | 0 | Displays initial 0-day streak with Total check-ins: 0 |
+| `/u/not-an-address` | Visitor | Validate address path parameter | PASS | 0 | 0 | Gracefully displays 404-style error message: That isn't an address. |
+| `/` | Observer | View global dashboard tiles, leaderboard, and limits | PASS | 0 | 0 | Public global view displays muted hero, leaderboard rows, and limits disclaimer tile |
+
