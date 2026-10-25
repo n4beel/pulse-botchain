@@ -116,4 +116,21 @@ All findings from `docs/specs/FEEDBACK-pulse.md` addressed and verified:
     ```
     Output: `244 -> 247` (+3 blocks produced automatically in 3 seconds).
 
+## Feedback round 3
+
+- **Footer Three-Link Compliance & Helper:**
+  - Added fixed constants `BOTCHAIN_SITE_URL = "https://botchain.ai"` and `BOTCHAIN_EXPLORER_URL = "https://scan.botchain.ai"` in `lib/botchain/chain.ts`.
+  - Added exported `footerLinks(chainId?: number): FooterLinks` returning `{ contract, site, explorer }` where `contract` is `<explorer for that chain>/address/<address>` (or `null` when undeployed).
+  - Updated `BuiltOnBotChain` to use `footerLinks(activeBotChain.id).contract`.
+  - Created `components/pulse/PulseFooter.tsx` rendering all three separate links in Pulse's Bento colophon style (`BuiltOnBotChain`, `botchain.ai`, and `Explorer`).
+  - Added `app/not-found.tsx` rendering `PageShell`, `Panel`, and `PulseFooter` for 404 pages.
+  - Added `PulseFooter` to the invalid address view in `app/u/[address]/page.tsx`.
+  - Added unit test suite in `lib/botchain/__tests__/chain.test.ts` covering chain IDs 677 and 968 for both deployed and undeployed configurations.
+
+- **Browser-Check with Local Stack (port 8701 / 3000):**
+  - `/` (Home): Verified all three links present (`https://scan.bohr.life/address/0x5fbdb2315678afecb367f032d93f642f64180aa3`, `https://botchain.ai`, `https://scan.botchain.ai`).
+  - `/u/0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266` (Detail): Verified all three links present.
+  - `/random-nonexistent-route` (Not Found): Verified all three links present.
+
+
 

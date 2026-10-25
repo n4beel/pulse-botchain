@@ -4,6 +4,8 @@ import PageShell from "@/components/layout/PageShell";
 import BentoDashboard from "@/components/pulse/BentoDashboard";
 import Panel from "@/components/ui/Panel";
 
+import PulseFooter from "@/components/pulse/PulseFooter";
+
 interface UserProfileProps {
   params: Promise<{
     address: string;
@@ -16,7 +18,7 @@ export default async function UserProfilePage({ params }: UserProfileProps) {
   if (!address || !isAddress(address, { strict: false })) {
     return (
       <PageShell>
-        <div className="max-w-md mx-auto py-16">
+        <div className="max-w-md mx-auto py-16 space-y-6">
           <Panel className="text-center py-12 space-y-4">
             <div className="text-4xl">⚠️</div>
             <h1 className="text-2xl font-extrabold text-[var(--text-primary)]">
@@ -34,6 +36,7 @@ export default async function UserProfilePage({ params }: UserProfileProps) {
               </Link>
             </div>
           </Panel>
+          <PulseFooter />
         </div>
       </PageShell>
     );

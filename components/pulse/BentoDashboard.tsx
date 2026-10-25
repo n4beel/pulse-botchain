@@ -15,7 +15,7 @@ import Panel from "@/components/ui/Panel";
 import Button from "@/components/ui/Button";
 import TxStatus, { type TxStage } from "@/components/ui/TxStatus";
 import { useToast } from "@/components/ui/Toast";
-import BuiltOnBotChain from "@/components/botchain/BuiltOnBotChain";
+import PulseFooter from "@/components/pulse/PulseFooter";
 import ConnectButton from "@/components/ui/ConnectButton";
 import { pulseAbi } from "@/lib/botchain/abi";
 import { isBotChainId } from "@/lib/botchain/chain";
@@ -633,15 +633,7 @@ export default function BentoDashboard({ viewAddress }: BentoDashboardProps) {
       </Panel>
 
       {/* 8. Colophon / Footer Tile (Span 12, thin) */}
-      <Panel
-        variant="subtle"
-        className="md:col-span-12 py-4 px-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[var(--text-muted)] font-mono"
-      >
-        <div>Pulse · On-chain daily habit marker</div>
-        <div>
-          <BuiltOnBotChain className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors underline" />
-        </div>
-      </Panel>
+      <PulseFooter />
     </div>
   );
 }
