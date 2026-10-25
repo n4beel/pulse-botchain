@@ -107,3 +107,13 @@ All findings from `docs/specs/FEEDBACK-pulse.md` addressed and verified:
 | `/u/not-an-address` | Visitor | Validate address path parameter | PASS | 0 | 0 | Gracefully displays 404-style error message: That isn't an address. |
 | `/` | Observer | View global dashboard tiles, leaderboard, and limits | PASS | 0 | 0 | Public global view displays muted hero, leaderboard rows, and limits disclaimer tile |
 
+## Feedback round 2
+
+- **Item 1 (Local-stack autonomous mining):** Added `"--block-time", "1"` to Anvil startup args in `scripts/local-stack.mjs`. Seeding continues to complete cleanly with the final timestamp difference within ~2 minutes of real time (`diff: 1s`).
+  - Command run to confirm blocks advance on their own:
+    ```bash
+    b1=$(cast block-number --rpc-url http://127.0.0.1:8701); sleep 3; b2=$(cast block-number --rpc-url http://127.0.0.1:8701); echo "$b1 -> $b2"
+    ```
+    Output: `244 -> 247` (+3 blocks produced automatically in 3 seconds).
+
+

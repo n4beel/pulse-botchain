@@ -63,6 +63,8 @@ spawn(
     "10",
     "--timestamp",
     String(startTimestamp),
+    "--block-time",
+    "1",
     "--silent",
   ],
   {
@@ -148,8 +150,9 @@ for (let d = T - 15; d < T; d++) {
   }
 }
 
-// Warp to realNow for Day T check-ins
-await pub.request({ method: "evm_setTime", params: [realNow] });
+// Warp to real-time for Day T check-ins
+const freshNow = Math.floor(Date.now() / 1000);
+await pub.request({ method: "evm_setTime", params: [freshNow] });
 await pub.request({ method: "evm_mine", params: [] });
 
 // Check in for accounts scheduled on Day T
@@ -204,3 +207,4 @@ console.log("Acc 7: 0x14dC79964da2C08b23698B3D3cc7Ca32193d9955 (Streak: 3, Best:
 console.log("Acc 8: 0x23618e81E3f5cdF7f54C3d65f7FBc0aBf5B21E8f (Streak: 2, Best: 2)");
 console.log("--------------------------------------------------------");
 console.log(".env.local updated.");
+process.exit(0);
