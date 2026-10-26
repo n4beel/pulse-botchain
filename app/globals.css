@@ -12,12 +12,19 @@
 :root {
   --bg-base: #FF3D81;
   --bg-surface: #1A0812;
+  --bg-elevated: #280E1C;
+  --border-default: #5A1E38;
   --text-primary: #FFF4F8;
+  --text-secondary: #E2CAD6;
+  --text-tertiary: #B2889E;
   --text-on-ground: #1A0812;
   --text-muted: #C9A3B5;
   --accent: #D7FF3F;
   --accent-ink: #1A0812;
   --border-subtle: #3A1626;
+  --success: #3DFFAA;
+  --danger: #FF4E72;
+  --warning: #FFD036;
 }
 
 html,

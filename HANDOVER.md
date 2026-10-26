@@ -132,5 +132,20 @@ All findings from `docs/specs/FEEDBACK-pulse.md` addressed and verified:
   - `/u/0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266` (Detail): Verified all three links present.
   - `/random-nonexistent-route` (Not Found): Verified all three links present.
 
+## Feedback round 4
+
+- **Shared CSS Tokens & Wallet Dropdown Grounding (Item 1):**
+  - Defined all missing tokens in `app/globals.css`:
+    - `--bg-elevated: #280E1C` (elevated plum dark ground for dropdowns/popovers)
+    - `--border-default: #5A1E38` (plum boundary border)
+    - `--text-secondary: #E2CAD6` (soft pink-tinted text, >10:1 contrast on elevated ground)
+    - `--text-tertiary: #B2889E` (secondary text, >5.5:1 contrast on elevated ground)
+    - `--success: #3DFFAA` (electric mint, >14:1 contrast on elevated ground)
+    - `--danger: #FF4E72` (rose red error/disconnect, >5.2:1 contrast on elevated ground)
+    - `--warning: #FFD036` (amber gold warning, >13:1 contrast on elevated ground)
+  - All token contrast ratios exceed 4.5:1 WCAG AA.
+  - Added unit test `test/lint/tokens.test.ts` verifying all `var(--x)` variables without fallback in `app/` and `components/` are defined in `globals.css` or next/font.
+  - Confirmed `python3 scripts/check-tokens.py pulse` exits 0 with 0 undefined tokens.
+
 
 
